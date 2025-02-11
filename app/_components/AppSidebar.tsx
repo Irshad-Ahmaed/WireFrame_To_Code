@@ -61,7 +61,7 @@ export function AppSidebar() {
                 </SidebarGroup>
             </SidebarContent>
             <SidebarFooter>
-                <h2 className='p-2 text-gray-400 text-sm'>Copyright @WiFrameToCode</h2>
+                <h2 className='p-2 text-gray-400 text-sm'>Copyright @WiFame2Code</h2>
             </SidebarFooter>
         </Sidebar>
     )
