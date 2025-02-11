@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Sparkles, Upload, X } from "lucide-react";
 import Image from "next/image";
 import React, { ChangeEvent, useRef, useState } from "react";
+
 import {
   Select,
   SelectContent,
@@ -13,21 +14,39 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { storage } from "@/configs/firebaseConfig";
+import axios from "axios";
+import { v4 as uuid4 } from 'uuid';
+import { useAuthContext } from "@/app/provider";
+
 const ImageUpload = () => {
+  // States:
   const [previewURL, setPreviewURL] = useState<String | null>(null);
+  const [file, setFile] = useState<File | null>(null);
+
+  const [model, setModel] = useState<String | null>(null);
+  const [description, setDescription] = useState<String | null>(null);
+
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // UserAuthContext:
+  const {user} = useAuthContext();
+
+  // Functions:
   const handleButtonClick = () => inputRef.current?.click();
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const selectedFile = event.target.files?.[0];
+    const selectedFile = event.target.files;
+
     if (selectedFile) {
-      console.log(selectedFile);
-      const imageUrl = URL.createObjectURL(selectedFile);
+      const imageUrl = URL.createObjectURL(selectedFile[0]);
       setPreviewURL(imageUrl);
+      setFile(selectedFile[0]);
     }
   };
 
+  // AI Models Arrays of Objects
   const AiModelsList = [
     {
       name: 'Gemini Google',
@@ -42,6 +61,35 @@ const ImageUpload = () => {
       icon: '/meta.png'
     },
   ]
+
+  // On Click ConvertToCOde Button
+  const convertToCode = async()=> {
+    if(!file || !model){
+      console.log("Select all field");
+      return;
+    }
+
+    const fileName = Date.now() + '.png';
+    const imageRef = ref(storage, 'wireframe-to-code/' + fileName);
+
+    await uploadBytes(imageRef, file).then(res => 
+      console.log("Image uploaded!")
+    );
+
+    const imageUrl = await getDownloadURL(imageRef);
+    console.log(imageUrl);
+
+    // Saving Info To DB
+    const uid = uuid4();
+    const result = await axios.post('/api/wireframe-to-code', {
+      uid: uid,
+      imageUrl: imageUrl,
+      model: model,
+      description: description,
+      email: user?.email,
+    });
+  }
+
   return (
     <div className="pt-10">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
@@ -74,7 +122,7 @@ const ImageUpload = () => {
             <div className="relative flex flex-col w-full">
               <X
                 className="absolute right-0 bg-gray-400 rounded-full p-0.5 cursor-pointer"
-                onClick={() => setPreviewURL(null)}
+                onClick={()=> setPreviewURL(null)}
               />
               <Image
                 src={previewURL}
@@ -90,7 +138,7 @@ const ImageUpload = () => {
         {/* Text Area */}
         <div className="p-7 border shadow-md rounded-lg">
           <h2 className="font-bold text-lg">Select AI Model</h2>
-          <Select>
+          <Select onValueChange={(value)=> setModel(value)}>
             <SelectTrigger className="w-full mt-1">
               <SelectValue placeholder="Model?" />
             </SelectTrigger>
@@ -98,7 +146,7 @@ const ImageUpload = () => {
               {
                 AiModelsList.map((model, index)=>(
                   <SelectItem key={index} value={model.name}>
-                    <div key={index} className="flex items-center gap-2">
+                    <div className="flex items-center gap-2">
                       <Image src={model.icon} alt={model.name} width={20} height={20} />
                       {model.name}
                     </div>
@@ -112,6 +160,7 @@ const ImageUpload = () => {
             Add description to get more desired code
           </h2>
           <Textarea
+            onChange={(event)=> setDescription(event?.target.value)}
             className="mt-3 h-[200px]"
             placeholder="Write about your web page"
           />
@@ -122,6 +171,8 @@ const ImageUpload = () => {
         <Button
           className="p-6 bg-gradient-to-l from-blue-500 to-violet-500
           hover:from-violet-500 hover:to-blue-500 hover:shadow-violet-400 transition-all"
+
+          onClick={convertToCode}
         >
           <Sparkles />
           Convert To Code
