@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Sparkles, Upload, X } from "lucide-react";
+import { Loader2Icon, Sparkles, Upload, X } from "lucide-react";
 import Image from "next/image";
 import React, { ChangeEvent, useRef, useState } from "react";
 
@@ -19,6 +19,8 @@ import { storage } from "@/configs/firebaseConfig";
 import axios from "axios";
 import { v4 as uuid4 } from 'uuid';
 import { useAuthContext } from "@/app/provider";
+import { useRouter } from "next/navigation";
+import Constants from "@/data/Constants";
 
 const ImageUpload = () => {
   // States:
@@ -33,6 +35,10 @@ const ImageUpload = () => {
   // UserAuthContext:
   const {user} = useAuthContext();
 
+  // Router:
+  const router = useRouter();
+  const [loading, setLoading] = useState(false);
+
   // Functions:
   const handleButtonClick = () => inputRef.current?.click();
 
@@ -46,28 +52,14 @@ const ImageUpload = () => {
     }
   };
 
-  // AI Models Arrays of Objects
-  const AiModelsList = [
-    {
-      name: 'Gemini Google',
-      icon: '/google.png'
-    },
-    {
-      name: 'Deepseek',
-      icon: '/deepseek.png'
-    },
-    {
-      name: 'LLAMA By Meta',
-      icon: '/meta.png'
-    },
-  ]
-
   // On Click ConvertToCOde Button
   const convertToCode = async()=> {
     if(!file || !model){
       console.log("Select all field");
       return;
     }
+
+    setLoading(true);
 
     const fileName = Date.now() + '.png';
     const imageRef = ref(storage, 'wireframe-to-code/' + fileName);
@@ -80,7 +72,7 @@ const ImageUpload = () => {
     console.log(imageUrl);
 
     // Saving Info To DB
-    const uid = uuid4();
+    const uid = uuid4(); // Generate Unique id every time
     const result = await axios.post('/api/wireframe-to-code', {
       uid: uid,
       imageUrl: imageUrl,
@@ -88,6 +80,10 @@ const ImageUpload = () => {
       description: description,
       email: user?.email,
     });
+
+    setLoading(false);
+
+    router.push(`/view-code/${uid}`);
   }
 
   return (
@@ -144,7 +140,7 @@ const ImageUpload = () => {
             </SelectTrigger>
             <SelectContent>
               {
-                AiModelsList.map((model, index)=>(
+                Constants?.AiModelsList.map((model, index)=>(
                   <SelectItem key={index} value={model.name}>
                     <div className="flex items-center gap-2">
                       <Image src={model.icon} alt={model.name} width={20} height={20} />
@@ -171,11 +167,16 @@ const ImageUpload = () => {
         <Button
           className="p-6 bg-gradient-to-l from-blue-500 to-violet-500
           hover:from-violet-500 hover:to-blue-500 hover:shadow-violet-400 transition-all"
-
+          disabled={loading}
           onClick={convertToCode}
         >
-          <Sparkles />
+          {
+            loading ? <Loader2Icon className="animate-spin"/>
+            :
+            <Sparkles />
+          }
           Convert To Code
+            
         </Button>
       </div>
     </div>
