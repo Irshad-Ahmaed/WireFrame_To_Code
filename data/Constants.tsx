@@ -26,18 +26,18 @@ export default {
 - Use margin and padding to style the components and ensure the components are spaced out nicely
 - Please ONLY return the full React code starting with the imports, nothing else. It's very important for my job that you only return the React code with imports. 
 - DO NOT START WITH \\\jsx or \\\`typescript or \\\`javascript or \\\`tsx or \\\.`,
-  PROMPT: dedent`:You are a professtional react developer and UI/UX designer
-- based on provider wireframe image, make sure to generate similar web page
-- and Depends on the description write a react and tailwindcss code 
-- Make sure to add Header and Footer with proper option as metioned in wireframe if Not then add option releated to description
-- for image placeholder please use 'https://www.svgrepo.com/show/508699/landscape-placeholder.svg'
-- Add All small details and make UI UX design more professtional
-- Make sure to keep same color combination across the page
-- Add Some Colors to make it more modern UI UX
-- Use lucid library for icons
-- Do not use any third party library
-- Only give react+ tailwindcss code and do not write any text other than code
-`,
+//   PROMPT: dedent`:You are a professtional react developer and UI/UX designer
+// - based on provider wireframe image, make sure to generate similar web page
+// - and Depends on the description write a react and tailwindcss code 
+// - Make sure to add Header and Footer with proper option as metioned in wireframe if Not then add option releated to description
+// - for image placeholder please use 'https://www.svgrepo.com/show/508699/landscape-placeholder.svg'
+// - Add All small details and make UI UX design more professtional
+// - Make sure to keep same color combination across the page
+// - Add Some Colors to make it more modern UI UX
+// - Use lucid library for icons
+// - Do not use any third party library
+// - Only give react+ tailwindcss code and do not write any text other than code
+// `,
 
   // AI Models Arrays of Object
   AiModelsList: [

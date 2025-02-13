@@ -1,34 +1,55 @@
+import Constants from "@/data/Constants";
 import { NextRequest } from "next/server";
 import OpenAI from "openai";
 
+const openai = new OpenAI({
+  baseURL: "https://openrouter.ai/api/v1",
+  apiKey: process.env.OPENROUTER_AI_API_KEY,
+});
+
 export async function POST(req: NextRequest) {
-  fetch("https://openrouter.ai/api/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      Authorization: "Bearer <OPENROUTER_API_KEY>",
-      "HTTP-Referer": "<YOUR_SITE_URL>", // Optional. Site URL for rankings on openrouter.ai.
-      "X-Title": "<YOUR_SITE_NAME>", // Optional. Site title for rankings on openrouter.ai.
-      "Content-Type": "application/json",
+  const { model, description, imageUrl } = await req.json();
+
+  const modelName = Constants.AiModelsList.find(
+    (modelInfo) => modelInfo.name === model
+  );
+
+  const response = await openai.chat.completions.create({
+    model: modelName?.model ?? "google/gemini-2.0-pro-exp-02-05:free",
+    stream: true,
+    messages: [
+      {
+        role: "user",
+        content: [
+          {
+            type: "text",
+            text: description,
+          },
+          {
+            type: "image_url",
+            image_url: {
+              url: imageUrl,
+            },
+          },
+        ],
+      },
+    ],
+  });
+
+  // Create a readable stream to send data in real-time
+  const stream = new ReadableStream({
+    async start(controller) {
+      for await (const chunk of response) {
+        const text = chunk.choices?.[0]?.delta?.content || "";
+        controller.enqueue(new TextEncoder().encode(text)); // Send data chunk
+      }
+      controller.close(); // End stream
     },
-    body: JSON.stringify({
-      model: "google/gemini-2.0-pro-exp-02-05:free",
-      messages: [
-        {
-          role: "user",
-          content: [
-            {
-              type: "text",
-              text: "What is in this image?",
-            },
-            {
-              type: "image_url",
-              image_url: {
-                url: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Gfp-wisconsin-madison-the-nature-boardwalk.jpg/2560px-Gfp-wisconsin-madison-the-nature-boardwalk.jpg",
-              },
-            },
-          ],
-        },
-      ],
-    }),
+  });
+
+  return new Response(stream, {
+    headers: {
+      "Content-Type": "text/plain; charset=utf-8",
+    },
   });
 }
