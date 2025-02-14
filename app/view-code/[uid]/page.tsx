@@ -1,12 +1,15 @@
 "use client"
 
+import AppHeader from '@/app/_components/AppHeader'
 import Constants from '@/data/Constants'
 import axios from 'axios'
 import { Loader2Icon } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
+import SelectionDetails from '../_components/SelectionDetails'
+import CodeEditor from '../_components/CodeEditor'
 
-interface Record{
+export interface Record{
     id: number,
     description: string,
     model: string,
@@ -20,14 +23,21 @@ const ViewCode = () => {
     const [loading, setLoading] = useState(false);
     const [viewCode, setViewCode] = useState('');
 
+    const [record, setRecord] = useState();
+
+    useEffect(()=>{
+        uid && GetRecordInfo();
+    }, [uid]);
+
+    // Fetches the Record on the basics of uid
     const GetRecordInfo = async() => {
         const result = await axios.get(`/api/wireframe-to-code?uid=${uid}`);
-        console.log(result.data);
+        console.log(result?.data);
         const resp = result?.data;
+        setRecord(resp);
 
         if(resp?.code === null){
-            console.log('Called GenerateCode');
-            GenerateCode(resp);
+            // GenerateCode(resp);
         }
 
         if(resp?.error){
@@ -35,11 +45,11 @@ const ViewCode = () => {
         }
     }
 
+    // Generated Code Function
     const GenerateCode = async(res:Record)=> {
-        console.log('started GenerateCode', res);
         setLoading(true);
 
-        const resp = await fetch('/api/ai-model', {
+        const resp = await fetch('/api/ai-model', {// axios is not work with streaming response
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
             body: JSON.stringify({
@@ -65,14 +75,23 @@ const ViewCode = () => {
         setLoading(false);
     }
 
-    useEffect(()=>{
-        uid && GetRecordInfo();
-    }, [uid])
-
   return (
     <div>
-        ViewCode
-        {loading && <p>{viewCode}</p>}
+        <AppHeader hideSidebar={true}/>
+        <div className='grid grid-cols-1 md:grid-cols-5 p-5 gap-10'>
+            {/* Selection Details */}
+            {
+                record &&
+                <div>
+                    <SelectionDetails record={record} />
+                </div>
+            }
+
+            {/* Code editor */}
+            <div className='col-span-4'>
+                <CodeEditor viewCode={viewCode}/>
+            </div>
+        </div>
     </div>
   )
 }
