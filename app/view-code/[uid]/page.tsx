@@ -24,6 +24,7 @@ const ViewCode = () => {
     const [viewCode, setViewCode] = useState('');
 
     const [record, setRecord] = useState();
+    const [isCompleted, setIsCompleted] = useState(false);
 
     useEffect(()=>{
         uid && GetRecordInfo();
@@ -72,6 +73,7 @@ const ViewCode = () => {
             console.log(text);
         }
 
+        setIsCompleted(true);
         setLoading(false);
     }
 
@@ -89,7 +91,7 @@ const ViewCode = () => {
 
             {/* Code editor */}
             <div className='col-span-4'>
-                <CodeEditor viewCode={viewCode}/>
+                <CodeEditor isCompleted={isCompleted} viewCode={viewCode}/>
             </div>
         </div>
     </div>
