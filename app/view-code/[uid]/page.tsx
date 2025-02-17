@@ -3,7 +3,7 @@
 import AppHeader from '@/app/_components/AppHeader'
 import Constants from '@/data/Constants'
 import axios from 'axios'
-import { Loader2Icon } from 'lucide-react'
+import { Loader2, Loader2Icon } from 'lucide-react'
 import { useParams } from 'next/navigation'
 import React, { useEffect, useState } from 'react'
 import SelectionDetails from '../_components/SelectionDetails'
@@ -61,6 +61,7 @@ const ViewCode = () => {
         });
 
         if(!resp.body) return;
+        setLoading(false);
 
         const reader = resp.body.getReader();
         const decoder = new TextDecoder();
@@ -74,7 +75,6 @@ const ViewCode = () => {
         }
 
         setIsCompleted(true);
-        setLoading(false);
     }
 
   return (
@@ -91,7 +91,15 @@ const ViewCode = () => {
 
             {/* Code editor */}
             <div className='col-span-4'>
-                <CodeEditor isCompleted={isCompleted} viewCode={viewCode}/>
+                {
+                    loading ?
+                    <h2 className='gap-5 font-bold text-2xl text-center p-20 
+                    flex items-center justify-center bg-slate-100 h-[80vh] rounded-xl'> 
+                        <Loader2 className='animate-spin'/>Analyzing Wireframe...
+                    </h2> 
+                    :
+                    <CodeEditor isCompleted={isCompleted} viewCode={viewCode}/>
+                }
             </div>
         </div>
     </div>
