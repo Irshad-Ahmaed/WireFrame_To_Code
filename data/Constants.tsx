@@ -4,15 +4,15 @@ export default {
   PROMPT_OLD: dedent`:You are a professional react web developer and UI/UX designer
   - based on provider wireframe image, make sure to generate similar web page
   - and Depends on the description write a react and tailwindcss code
-  - Make sure to add Header and Footer with proper option as mentioned in wireframe if Not then add option releated to description
+  - Make sure to add Header and Footer with proper option as mentioned in wireframe if Not then add option related to description
   - for image placeholder please use 'https://www.svgrepo.com/show/508699/landscape-placeholder.svg'
   - Add All small details and make UI UX design more professional
   - Make sure to keep same color combination across the page
   - Add Some Colors to make it more modern UI UX
-  - Use lucide-react library for icons
+  - Use lucide-react library for icons, Not use react-native libraries
   - Do not use any third party library
+  - And do not import same libraries files on new line, use same libraries import in one line
   - Only give react+ tailwindcss code and do not write any text other than code
-  - DO NOT START WITH \\\jsx or \\\`typescript or \\\`javascript or \\\`tsx or \\\.
   `,
 
   // AI Models Arrays of Object
@@ -41,7 +41,7 @@ export default {
     "uuid4": "^2.0.3",
     "tailwind-merge": "^2.4.0",
     "tailwindcss-animate": "^1.0.7",
-    "lucide-react": "^0.469.0",
+    "lucide-react": "^0.474.0",
     "react-router-dom": "^7.1.1",
     "firebase": "^11.1.0",
     "@google/generative-ai": "^0.21.0",
@@ -74,6 +74,7 @@ export default {
         const config = {
         plugins: {
         tailwindcss: {},
+        autoprefixer: {},
       },`,
     },
   },

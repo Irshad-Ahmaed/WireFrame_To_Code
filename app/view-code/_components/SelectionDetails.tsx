@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { RefreshCcw } from 'lucide-react';
 
 
-const SelectionDetails = ({record}: {record: Record}) => {
+const SelectionDetails = ({record, regenerateCode, isCompleted}: {record: Record, regenerateCode:any, isCompleted: Boolean}) => {
   const [onMouseHover, setOnMouseHover] = useState(false);
 
   return (
@@ -33,6 +33,8 @@ const SelectionDetails = ({record}: {record: Record}) => {
 
       <div onMouseEnter={()=> setOnMouseHover(true)} onMouseLeave={()=> setOnMouseHover(false)}>
         <Button
+          disabled={!isCompleted}
+          onClick={regenerateCode}
           className='mt-7 w-full bg-blue-500'> <RefreshCcw className={`${onMouseHover && ' rotate-90 duration-500 transition-all'}`}/> 
           Regenerate Code
         </Button>

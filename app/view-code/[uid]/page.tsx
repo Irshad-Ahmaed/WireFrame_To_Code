@@ -32,6 +32,10 @@ const ViewCode = () => {
 
     // Fetches the Record on the basics of uid
     const GetRecordInfo = async() => {
+        setIsCompleted(false);
+        setViewCode('');
+        setLoading(true);
+
         const result = await axios.get(`/api/wireframe-to-code?uid=${uid}`);
         console.log(result?.data);
         const resp = result?.data;
@@ -69,7 +73,7 @@ const ViewCode = () => {
             const {done, value} = await reader.read();
             if(done) break;
 
-            const text = decoder.decode(value).replace('```Typescript', '').replace('```', '');
+            const text = decoder.decode(value).replace('```Typescript', '').replace('```', '').replace(`jsx`, '');
             setViewCode((prev)=> prev+text);
             console.log(text);
         }
@@ -85,7 +89,9 @@ const ViewCode = () => {
             {
                 record &&
                 <div>
-                    <SelectionDetails record={record} />
+                    <SelectionDetails record={record} regenerateCode={()=>GetRecordInfo()} 
+                        isCompleted={isCompleted}
+                    />
                 </div>
             }
 
